@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">ImdbApp</string>
+    
+    <!-- Navigation & Actions -->
+    <string name="back">Back</string>
+    <string name="search_movies">Search Movies</string>
+    <string name="search">Search</string>
+    <string name="clear">Clear</string>
+    <string name="fill_search">Fill search</string>
+    <string name="retry">Retry</string>
+    <string name="try_again">Try again</string>
+    
+    <!-- Movies Screen -->
+    <string name="now_playing">Now Playing</string>
+    <string name="featured">Featured</string>
+    <string name="all_movies">All Movies</string>
+    <string name="no_movies_available">No movies available</string>
+    <string name="failed_to_load_more">Failed to load more</string>
+    <string name="failed_to_load_movies">Failed to load movies</string>
+    <string name="failed_to_load_movies_message">Failed to load movies. Please check your connection.</string>
+    
+    <!-- Search Screen -->
+    <string name="search_for_movies">Search for movies</string>
+    <string name="search_for_movies_hint">Search for movies…</string>
+    <string name="type_at_least_2_characters">Type at least 2 characters</string>
+    <string name="find_your_favorite_movies_by_title">Find your favorite movies by title</string>
+    <string name="search_failed">Search failed</string>
+    <string name="no_results_found">No results found</string>
+    <string name="no_movies_found_for_query">No movies found for \"%1$s\"</string>
+    <string name="suggestions">Suggestions</string>
+    <string name="results_for_query">%1$d results for \"%2$s\"</string>
+    
+    <!-- Details Screen -->
+    <string name="overview">Overview</string>
+    <string name="box_office">Box Office</string>
+    <string name="production">Production</string>
+    <string name="budget">Budget</string>
+    <string name="revenue">Revenue</string>
+    <string name="no_overview_available">No overview available.</string>
+    <string name="rating_format">%1$s/10</string>
+    
+    <!-- Error Messages -->
+    <string name="something_went_wrong">Something went wrong</string>
+    
+    <!-- Loading -->
+    <string name="loading_more">Loading more…</string>
+</resources>
