@@ -53,7 +53,7 @@ fun NavGraph(navController: NavHostController) {
             DetailsScreen(
                 movieId = movieId,
                 viewModel = vm,
-                onBackClick = navController::popBackStack
+                onBackClick = navController::navigateUp
             )
         }
 
@@ -63,7 +63,7 @@ fun NavGraph(navController: NavHostController) {
             SearchScreen(
                 viewModel = vm,
                 onMovieClick = { navController.navigate(Screen.Details.createRoute(it)) },
-                onBackClick = navController::popBackStack
+                onBackClick = navController::navigateUp
             )
         }
     }
