@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
@@ -30,9 +29,7 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(LocalViewModelFactory provides viewModelFactory) {
                 ImdbAppTheme {
                     Surface(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .statusBarsPadding(),
+                        modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
                         NavGraph(navController = rememberNavController())
