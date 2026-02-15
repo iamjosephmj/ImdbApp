@@ -23,12 +23,33 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Setup API key (optional)
-      if: env.TMDB_API_KEY != ''
+    - name: Validate and setup API key
       run: |
-        echo "TMDB_API_KEY=${{ secrets.TMDB_API_KEY }}" >> local.properties
-      env:
-        TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        API_KEY="${{ secrets.TMDB_API_KEY }}"
+        
+        # Check if API key is missing or empty
+        if [ -z "$API_KEY" ] || [ "$API_KEY" = "" ]; then
+          echo "::error::TMDB_API_KEY secret is not set or is empty. Build cannot continue without a valid API key."
+          echo "::error::Please add TMDB_API_KEY as a repository secret in Settings > Secrets and variables > Actions"
+          exit 1
+        fi
+        
+        # Check minimum length (TMDB API keys are typically 32+ characters)
+        if [ ${#API_KEY} -lt 10 ]; then
+          echo "::error::TMDB_API_KEY appears to be invalid (too short). Build cannot continue."
+          exit 1
+        fi
+        
+        # Write API key to local.properties
+        echo "TMDB_API_KEY=$API_KEY" > local.properties
+        
+        # Verify the file was created and contains the key
+        if [ ! -f local.properties ] || ! grep -q "TMDB_API_KEY" local.properties; then
+          echo "::error::Failed to write API key to local.properties. Build cannot continue."
+          exit 1
+        fi
+        
+        echo "✓ API key validated and configured successfully"
       
     - name: Run unit tests
       run: ./gradlew testDebugUnitTest
