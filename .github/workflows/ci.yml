@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [ main, master, develop ]
 
-env:
-  # Setting an environment variable with the value of a configuration variable
-  env_var: ${{ vars.ENV_CONTEXT_VAR }}
-
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
@@ -29,10 +25,12 @@ jobs:
       
     - name: Validate and setup API key
       env:
+        # Setting environment variables with values from secrets/vars context (following GitHub Actions pattern)
         API_KEY_SECRET: ${{ secrets.TMDB_API_KEY }}
         API_KEY_VAR: ${{ vars.TMDB_API_KEY }}
       run: |
         # Prefer secret over var (secrets are more secure for API keys)
+        # Use the environment variables set from vars/secrets context
         if [ -n "$API_KEY_SECRET" ] && [ "$API_KEY_SECRET" != "" ]; then
           API_KEY="$API_KEY_SECRET"
         elif [ -n "$API_KEY_VAR" ] && [ "$API_KEY_VAR" != "" ]; then
@@ -40,6 +38,7 @@ jobs:
         else
           API_KEY=""
         fi
+        
         # Check if API key is missing or empty
         if [ -z "$API_KEY" ] || [ "$API_KEY" = "" ]; then
           echo "::error::TMDB_API_KEY is not set or is empty. Build cannot continue without a valid API key."
