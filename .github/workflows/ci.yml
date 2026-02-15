@@ -25,18 +25,15 @@ jobs:
       
     - name: Validate and setup API key
       env:
-        # Setting environment variables with values from secrets/vars context (following GitHub Actions pattern)
-        API_KEY_SECRET: ${{ secrets.TMDB_API_KEY }}
-        API_KEY_VAR: ${{ vars.TMDB_API_KEY }}
+        # Setting environment variable with value from vars context (following GitHub Actions pattern)
+        TMDB_API_KEY: ${{ vars.TMDB_API_KEY }}
+        TMDB_API_KEY_SECRET: ${{ secrets.TMDB_API_KEY }}
       run: |
         # Prefer secret over var (secrets are more secure for API keys)
-        # Use the environment variables set from vars/secrets context
-        if [ -n "$API_KEY_SECRET" ] && [ "$API_KEY_SECRET" != "" ]; then
-          API_KEY="$API_KEY_SECRET"
-        elif [ -n "$API_KEY_VAR" ] && [ "$API_KEY_VAR" != "" ]; then
-          API_KEY="$API_KEY_VAR"
+        if [ -n "$TMDB_API_KEY_SECRET" ] && [ "$TMDB_API_KEY_SECRET" != "" ]; then
+          API_KEY="$TMDB_API_KEY_SECRET"
         else
-          API_KEY=""
+          API_KEY="$TMDB_API_KEY"
         fi
         
         # Check if API key is missing or empty
