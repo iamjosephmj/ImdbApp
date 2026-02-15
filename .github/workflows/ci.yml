@@ -27,21 +27,15 @@ jobs:
       env:
         # Setting environment variable with value from vars context (following GitHub Actions pattern)
         TMDB_API_KEY: ${{ vars.TMDB_API_KEY }}
-        TMDB_API_KEY_SECRET: ${{ secrets.TMDB_API_KEY }}
       run: |
-        # Prefer secret over var (secrets are more secure for API keys)
-        if [ -n "$TMDB_API_KEY_SECRET" ] && [ "$TMDB_API_KEY_SECRET" != "" ]; then
-          API_KEY="$TMDB_API_KEY_SECRET"
-        else
-          API_KEY="$TMDB_API_KEY"
-        fi
+        # Use the environment variable set from vars context
+        API_KEY="$TMDB_API_KEY"
         
         # Check if API key is missing or empty
         if [ -z "$API_KEY" ] || [ "$API_KEY" = "" ]; then
           echo "::error::TMDB_API_KEY is not set or is empty. Build cannot continue without a valid API key."
-          echo "::error::Please add TMDB_API_KEY as either:"
-          echo "::error::  - Repository secret: Settings > Secrets and variables > Actions > New repository secret"
-          echo "::error::  - Repository variable: Settings > Secrets and variables > Actions > Variables tab > New repository variable"
+          echo "::error::Please add TMDB_API_KEY as a repository variable:"
+          echo "::error::  Settings > Secrets and variables > Actions > Variables tab > New repository variable"
           exit 1
         fi
         
