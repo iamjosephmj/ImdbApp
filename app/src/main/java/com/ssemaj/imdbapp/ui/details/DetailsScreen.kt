@@ -58,6 +58,7 @@ import com.ssemaj.imdbapp.ui.components.ErrorMessage
 import com.ssemaj.imdbapp.ui.components.LoadingIndicator
 import com.ssemaj.imdbapp.ui.theme.ImdbAppTheme
 import com.ssemaj.imdbapp.ui.util.isLandscape
+import com.ssemaj.imdbapp.util.takeIfNotEmpty
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -278,15 +279,15 @@ private fun DetailsTextContent(uiState: DetailsUiState.Success) {
 
     Spacer(modifier = Modifier.height(20.dp))
 
-    if (uiState.movie.genres.isNotEmpty()) {
+    uiState.movie.genres.takeIfNotEmpty()?.let { genres ->
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            uiState.movie.genres.forEach { genre ->
+            genres.map { it.name }.forEach { genreName ->
                 SuggestionChip(
                     onClick = { },
-                    label = { Text(genre.name, style = MaterialTheme.typography.labelMedium) },
+                    label = { Text(genreName, style = MaterialTheme.typography.labelMedium) },
                     colors = SuggestionChipDefaults.suggestionChipColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         labelColor = MaterialTheme.colorScheme.onSecondaryContainer
@@ -301,7 +302,8 @@ private fun DetailsTextContent(uiState: DetailsUiState.Success) {
     SectionHeader(title = stringResource(R.string.overview))
     Spacer(modifier = Modifier.height(8.dp))
     Text(
-        text = uiState.movie.overview.ifBlank { stringResource(R.string.no_overview_available) },
+        text = uiState.movie.overview.takeIf { it.isNotBlank() } 
+            ?: stringResource(R.string.no_overview_available),
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )

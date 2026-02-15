@@ -9,35 +9,22 @@ import javax.inject.Singleton
 @Singleton
 internal class TmdbClient @Inject constructor(private val api: TmdbService) {
 
-    suspend fun nowPlaying(page: Int): ApiResult<PagedResult<Movie>> {
-        return suspendApiResultOf {
-            val response = api.getNowPlayingMovies(page, LANGUAGE)
-            PagedResult(response.results, response.page, response.totalPages)
+    suspend fun nowPlaying(page: Int): ApiResult<PagedResult<Movie>> =
+        suspendApiResultOf {
+            api.getNowPlayingMovies(page, LANGUAGE).let { response ->
+                PagedResult(response.results, response.page, response.totalPages)
+            }
         }
-    }
 
-    suspend fun movieDetails(id: Int): ApiResult<MovieDetails> {
-        return suspendApiResultOf {
-            api.getMovieDetails(id, LANGUAGE)
-        }
-    }
+    suspend fun movieDetails(id: Int): ApiResult<MovieDetails> =
+        suspendApiResultOf { api.getMovieDetails(id, LANGUAGE) }
 
-    suspend fun search(query: String, page: Int = 1): ApiResult<List<Movie>> {
-        return suspendApiResultOf {
+    suspend fun search(query: String, page: Int = 1): ApiResult<List<Movie>> =
+        suspendApiResultOf {
             api.searchMovies(query, page, LANGUAGE, includeAdult = false).results
         }
-    }
 
     companion object {
         private const val LANGUAGE = "en-US"
     }
-}
-
-data class PagedResult<T>(
-    val items: List<T>,
-    val page: Int,
-    val totalPages: Int
-) {
-    val hasNextPage get() = page < totalPages
-    val hasPrevPage get() = page > 1
 }

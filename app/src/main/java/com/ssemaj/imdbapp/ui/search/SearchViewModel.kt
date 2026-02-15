@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.ssemaj.imdbapp.data.api.exception.ApiException
 import com.ssemaj.imdbapp.domain.ErrorMessageFormatter
 import com.ssemaj.imdbapp.domain.usecase.SearchMoviesUseCase
+import com.ssemaj.imdbapp.util.isValidQuery
+import com.ssemaj.imdbapp.util.toUserMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -34,32 +36,26 @@ class SearchViewModel @Inject internal constructor(
 
     val searchResults = _searchQuery
         .debounce(DEBOUNCE_TIMEOUT_MS)
-        .flatMapLatest { query -> createSearchFlow(query) }
+        .flatMapLatest(::createSearchFlow)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), SearchUiState.Idle)
 
-    private fun createSearchFlow(query: String): Flow<SearchUiState> {
-        return when {
-            query.length < MIN_QUERY_LENGTH -> flowOf(SearchUiState.Idle)
-            else -> performSearch(query)
+    private fun createSearchFlow(query: String): Flow<SearchUiState> = 
+        query.takeIf { it.isValidQuery(MIN_QUERY_LENGTH) }
+            ?.let { performSearch(it) }
+            ?: flowOf(SearchUiState.Idle)
+
+    private fun performSearch(query: String): Flow<SearchUiState> = flow {
+        emit(SearchUiState.Loading)
+        searchMoviesUseCase(query).collect { movies ->
+            emit(SearchUiState.Success(movies))
         }
+    }.catch { exception ->
+        emit(SearchUiState.Error(formatError(exception)))
     }
 
-    private fun performSearch(query: String): Flow<SearchUiState> {
-        return flow {
-            emit(SearchUiState.Loading)
-            searchMoviesUseCase(query).collect { movies ->
-                emit(SearchUiState.Success(movies))
-            }
-        }.catch { exception ->
-            emit(SearchUiState.Error(formatError(exception)))
-        }
-    }
-
-    private fun formatError(exception: Throwable): String {
-        return when (exception) {
-            is ApiException -> errorMessageFormatter.format(exception)
-            else -> "$DEFAULT_SEARCH_ERROR_MESSAGE_PREFIX${exception.message ?: "Unknown error"}"
-        }
+    private fun formatError(exception: Throwable): String = when (exception) {
+        is ApiException -> errorMessageFormatter.format(exception)
+        else -> "$DEFAULT_SEARCH_ERROR_MESSAGE_PREFIX${exception.toUserMessage()}"
     }
 
     fun onQueryChange(query: String) {
