@@ -3,6 +3,7 @@ package com.ssemaj.imdbapp.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.ssemaj.imdbapp.data.api.ApiResult
+import com.ssemaj.imdbapp.data.api.fold
 import com.ssemaj.imdbapp.data.model.Movie
 import com.ssemaj.imdbapp.data.repository.MovieRepository
 
@@ -13,32 +14,28 @@ internal class MoviePagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> {
         val requestedPage = params.key ?: FIRST_PAGE
         
-        return when (val result = repository.fetchNowPlayingMovies(requestedPage)) {
-            is ApiResult.Success -> {
-                val pagedResult = result.data
+        return repository.fetchNowPlayingMovies(requestedPage).fold(
+            onError = { exception -> LoadResult.Error(exception) },
+            onSuccess = { pagedResult ->
+                val (items, _, _) = pagedResult
                 LoadResult.Page(
-                    data = pagedResult.items,
-                    prevKey = if (pagedResult.hasPrevPage) requestedPage - 1 else null,
-                    nextKey = if (pagedResult.hasNextPage) requestedPage + 1 else null
+                    data = items,
+                    prevKey = pagedResult.hasPrevPage.takeIf { it }?.let { requestedPage - 1 },
+                    nextKey = pagedResult.hasNextPage.takeIf { it }?.let { requestedPage + 1 }
                 )
             }
-            is ApiResult.Error -> {
-                LoadResult.Error(result.exception)
-            }
-        }
+        )
     }
 
-    override fun getRefreshKey(state: PagingState<Int, Movie>): Int? {
-        // Return the page key that would load the page containing the anchor position
-        // This ensures smooth scrolling when the list is refreshed
-        val anchorPosition = state.anchorPosition ?: return null
-        val closestPage = state.closestPageToPosition(anchorPosition) ?: return null
-        
-        // Prefer the page after the previous page, or the page before the next page
-        return closestPage.prevKey?.plus(1) ?: closestPage.nextKey?.minus(1)
-    }
+    override fun getRefreshKey(state: PagingState<Int, Movie>): Int? = 
+        state.anchorPosition?.let { anchorPosition ->
+            state.closestPageToPosition(anchorPosition)?.let { closestPage ->
+                closestPage.prevKey?.plus(1) ?: closestPage.nextKey?.minus(1)
+            }
+        }
 
     companion object {
         private const val FIRST_PAGE = 1
     }
 }
+

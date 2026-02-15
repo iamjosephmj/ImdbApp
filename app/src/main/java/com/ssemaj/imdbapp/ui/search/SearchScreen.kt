@@ -67,6 +67,7 @@ import com.ssemaj.imdbapp.ui.components.PreviewData
 import com.ssemaj.imdbapp.ui.theme.ImdbAppTheme
 import com.ssemaj.imdbapp.ui.util.WindowType
 import com.ssemaj.imdbapp.ui.util.rememberWindowSize
+import com.ssemaj.imdbapp.util.orEmpty
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -372,10 +373,9 @@ private fun SearchResultsList(
                 items = movies.take(3),
                 key = { "suggestion_${it.id}" }
             ) { movie ->
-                val formatter = MovieFormatter()
                 AutocompleteSuggestionItem(
                     title = movie.title,
-                    year = formatter.extractYear(movie.releaseDate),
+                    year = movie.releaseDate?.take(4).orEmpty(),
                     onClick = { onSuggestionClick(movie.title) },
                     onSelect = { onMovieClick(movie.id) }
                 )
