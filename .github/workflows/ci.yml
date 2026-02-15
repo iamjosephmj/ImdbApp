@@ -28,14 +28,16 @@ jobs:
         API_KEY_SECRET: ${{ secrets.TMDB_API_KEY }}
         API_KEY_VAR: ${{ vars.TMDB_API_KEY }}
       run: |
-        # Prefer secret over var, but allow var as fallback
+        # Prefer secret over var (secrets are more secure for API keys)
         if [ -n "$API_KEY_SECRET" ] && [ "$API_KEY_SECRET" != "" ]; then
           API_KEY="$API_KEY_SECRET"
-          KEY_SOURCE="secret"
         elif [ -n "$API_KEY_VAR" ] && [ "$API_KEY_VAR" != "" ]; then
           API_KEY="$API_KEY_VAR"
-          KEY_SOURCE="variable"
         else
+          API_KEY=""
+        fi
+        # Check if API key is missing or empty
+        if [ -z "$API_KEY" ] || [ "$API_KEY" = "" ]; then
           echo "::error::TMDB_API_KEY is not set or is empty. Build cannot continue without a valid API key."
           echo "::error::Please add TMDB_API_KEY as either:"
           echo "::error::  - Repository secret: Settings > Secrets and variables > Actions > New repository secret"
@@ -69,7 +71,7 @@ jobs:
           exit 1
         fi
         
-        echo "✓ API key validated and configured successfully (source: $KEY_SOURCE, length: ${#API_KEY} chars)"
+        echo "✓ API key validated and configured successfully (length: ${#API_KEY} chars)"
       
     - name: Run unit tests
       run: ./gradlew testDebugUnitTest
