@@ -17,7 +17,7 @@ import javax.inject.Provider
  * ViewModels are provided via their @Inject constructors.
  */
 @Module
-abstract class ViewModelModule {
+internal abstract class ViewModelModule {
 
     @Binds
     @IntoMap

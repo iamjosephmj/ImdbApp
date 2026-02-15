@@ -5,7 +5,7 @@ import com.ssemaj.imdbapp.data.model.ProductionCompany
 import java.util.Locale
 import javax.inject.Inject
 
-class MovieFormatter @Inject constructor() {
+internal class MovieFormatter @Inject constructor() {
 
     fun formatRating(voteAverage: Double): String {
         return String.format(Locale.US, "%.1f", voteAverage)

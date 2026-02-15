@@ -2,26 +2,29 @@ package com.ssemaj.imdbapp.data.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.ssemaj.imdbapp.data.api.ApiResult
 import com.ssemaj.imdbapp.data.model.Movie
 import com.ssemaj.imdbapp.data.repository.MovieRepository
 
-class MoviePagingSource(
+internal class MoviePagingSource(
     private val repository: MovieRepository
 ) : PagingSource<Int, Movie>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> {
         val requestedPage = params.key ?: FIRST_PAGE
         
-        return try {
-            val pagedResult = repository.fetchNowPlayingMovies(requestedPage)
-            
-            LoadResult.Page(
-                data = pagedResult.items,
-                prevKey = if (pagedResult.hasPrevPage) requestedPage - 1 else null,
-                nextKey = if (pagedResult.hasNextPage) requestedPage + 1 else null
-            )
-        } catch (e: Exception) {
-            LoadResult.Error(e)
+        return when (val result = repository.fetchNowPlayingMovies(requestedPage)) {
+            is ApiResult.Success -> {
+                val pagedResult = result.data
+                LoadResult.Page(
+                    data = pagedResult.items,
+                    prevKey = if (pagedResult.hasPrevPage) requestedPage - 1 else null,
+                    nextKey = if (pagedResult.hasNextPage) requestedPage + 1 else null
+                )
+            }
+            is ApiResult.Error -> {
+                LoadResult.Error(result.exception)
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package com.ssemaj.imdbapp.domain.usecase
 
 import com.google.common.truth.Truth.assertThat
 import com.ssemaj.imdbapp.TestFixtures
+import com.ssemaj.imdbapp.data.api.ApiResult
 import com.ssemaj.imdbapp.data.cache.MovieCache
 import com.ssemaj.imdbapp.data.repository.MovieRepository
 import kotlinx.coroutines.test.runTest
@@ -39,7 +40,7 @@ class GetMovieDetailsUseCaseTest {
     fun `invoke fetches from repository when not cached`() = runTest {
         val details = TestFixtures.createMovieDetails(id = 123)
         whenever(cache.getDetails(123)).thenReturn(null)
-        whenever(repository.fetchMovieDetails(123)).thenReturn(details)
+        whenever(repository.fetchMovieDetails(123)).thenReturn(ApiResult.Success(details))
 
         val result = useCase(123)
 
@@ -52,7 +53,7 @@ class GetMovieDetailsUseCaseTest {
     fun `invoke caches result after fetching`() = runTest {
         val details = TestFixtures.createMovieDetails(id = 456)
         whenever(cache.getDetails(456)).thenReturn(null)
-        whenever(repository.fetchMovieDetails(456)).thenReturn(details)
+        whenever(repository.fetchMovieDetails(456)).thenReturn(ApiResult.Success(details))
 
         useCase(456)
 

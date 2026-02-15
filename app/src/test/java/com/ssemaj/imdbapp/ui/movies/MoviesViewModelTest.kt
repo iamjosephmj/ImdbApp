@@ -29,7 +29,7 @@ class MoviesViewModelTest {
     @Test
     fun `movies flow comes from use case`() = runTest {
         val viewModel = createViewModel()
-        assertThat(viewModel.movies).isNotNull()
+        assertThat(viewModel.movies()).isNotNull()
         verify(useCase).invoke()
     }
 }

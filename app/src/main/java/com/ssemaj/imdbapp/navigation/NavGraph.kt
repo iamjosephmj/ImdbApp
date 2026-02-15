@@ -34,7 +34,7 @@ fun NavGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Screen.Movies.route) {
         composable(Screen.Movies.route) {
             val vm: MoviesViewModel = viewModel(factory = factory)
-            val movies = vm.movies.collectAsLazyPagingItems()
+            val movies = vm.movies().collectAsLazyPagingItems()
 
             MoviesScreen(
                 movies = movies,

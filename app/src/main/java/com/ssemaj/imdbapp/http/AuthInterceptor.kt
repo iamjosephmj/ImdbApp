@@ -5,7 +5,7 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
 
-class AuthInterceptor @Inject constructor() : Interceptor {
+internal class AuthInterceptor @Inject constructor() : Interceptor {
 
     companion object {
         private const val KEY_QUERY_PARAM = "api_key"

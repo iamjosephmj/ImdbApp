@@ -4,8 +4,12 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.ssemaj.imdbapp.MainDispatcherRule
 import com.ssemaj.imdbapp.TestFixtures
+import android.content.Context
+import com.ssemaj.imdbapp.R
+import com.ssemaj.imdbapp.domain.ErrorMessageFormatter
 import com.ssemaj.imdbapp.domain.usecase.SearchMoviesUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
@@ -28,10 +32,12 @@ class SearchViewModelTest {
 
     private lateinit var viewModel: SearchViewModel
     private val useCase: SearchMoviesUseCase = mock()
+    private val context: Context = mock()
+    private val errorMessageFormatter: ErrorMessageFormatter = ErrorMessageFormatter(context)
 
     @Before
     fun setup() {
-        viewModel = SearchViewModel(useCase)
+        viewModel = SearchViewModel(useCase, errorMessageFormatter)
     }
 
     @Test
@@ -119,8 +125,13 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun `error state on failure`() = runTest {
-        whenever(useCase("fail")).thenThrow(RuntimeException("Network error"))
+    fun `error state on ApiException`() = runTest {
+        val exception = com.ssemaj.imdbapp.data.api.exception.ApiException.NetworkException.NoConnectionException()
+        val errorMessage = "No internet connection. Please check your network settings."
+        whenever(useCase("fail")).thenReturn(
+            flow { throw exception }
+        )
+        whenever(context.getString(R.string.error_no_connection)).thenReturn(errorMessage)
 
         viewModel.searchResults.test {
             assertThat(awaitItem()).isEqualTo(SearchUiState.Idle)
@@ -130,9 +141,11 @@ class SearchViewModelTest {
 
             val state = awaitItem()
             if (state is SearchUiState.Loading) {
-                assertThat(awaitItem()).isInstanceOf(SearchUiState.Error::class.java)
+                val errorState = awaitItem() as SearchUiState.Error
+                assertThat(errorState.message).contains("No internet connection")
             } else {
-                assertThat(state).isInstanceOf(SearchUiState.Error::class.java)
+                val errorState = state as SearchUiState.Error
+                assertThat(errorState.message).contains("No internet connection")
             }
         }
     }

@@ -2,6 +2,7 @@ package com.ssemaj.imdbapp.domain.usecase
 
 import com.google.common.truth.Truth.assertThat
 import com.ssemaj.imdbapp.TestFixtures
+import com.ssemaj.imdbapp.data.api.ApiResult
 import com.ssemaj.imdbapp.data.model.Movie
 import com.ssemaj.imdbapp.data.repository.MovieRepository
 import kotlinx.coroutines.flow.first
@@ -30,7 +31,7 @@ class SearchMoviesUseCaseTest {
             TestFixtures.createMovie(id = 1, title = "Batman"),
             TestFixtures.createMovie(id = 2, title = "Batman Returns")
         )
-        whenever(repository.fetchSearchResults("Batman")).thenReturn(movies)
+        whenever(repository.fetchSearchResults("Batman")).thenReturn(ApiResult.Success(movies))
 
         val result = useCase("Batman").first()
 

@@ -2,21 +2,31 @@ package com.ssemaj.imdbapp.data.api
 
 import com.ssemaj.imdbapp.data.model.Movie
 import com.ssemaj.imdbapp.data.model.MovieDetails
+import com.ssemaj.imdbapp.http.suspendApiResultOf
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TmdbClient @Inject constructor(private val api: TmdbService) {
+internal class TmdbClient @Inject constructor(private val api: TmdbService) {
 
-    suspend fun nowPlaying(page: Int): PagedResult<Movie> {
-        val response = api.getNowPlayingMovies(page, LANGUAGE)
-        return PagedResult(response.results, response.page, response.totalPages)
+    suspend fun nowPlaying(page: Int): ApiResult<PagedResult<Movie>> {
+        return suspendApiResultOf {
+            val response = api.getNowPlayingMovies(page, LANGUAGE)
+            PagedResult(response.results, response.page, response.totalPages)
+        }
     }
 
-    suspend fun movieDetails(id: Int): MovieDetails = api.getMovieDetails(id, LANGUAGE)
+    suspend fun movieDetails(id: Int): ApiResult<MovieDetails> {
+        return suspendApiResultOf {
+            api.getMovieDetails(id, LANGUAGE)
+        }
+    }
 
-    suspend fun search(query: String, page: Int = 1): List<Movie> =
-        api.searchMovies(query, page, LANGUAGE, includeAdult = false).results
+    suspend fun search(query: String, page: Int = 1): ApiResult<List<Movie>> {
+        return suspendApiResultOf {
+            api.searchMovies(query, page, LANGUAGE, includeAdult = false).results
+        }
+    }
 
     companion object {
         private const val LANGUAGE = "en-US"

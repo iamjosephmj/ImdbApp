@@ -2,7 +2,9 @@ package com.ssemaj.imdbapp.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.ssemaj.imdbapp.BuildConfig
+import com.ssemaj.imdbapp.http.ApiResultCallAdapterFactory
 import com.ssemaj.imdbapp.http.AuthInterceptor
+import com.ssemaj.imdbapp.http.ErrorInterceptor
 import com.ssemaj.imdbapp.data.api.TmdbService
 import dagger.Module
 import dagger.Provides
@@ -14,7 +16,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
-class NetworkModule {
+internal class NetworkModule {
 
     @Provides
     @Singleton
@@ -25,7 +27,11 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun okHttp(authInterceptor: AuthInterceptor): OkHttpClient = OkHttpClient.Builder()
+    fun okHttp(
+        errorInterceptor: ErrorInterceptor,
+        authInterceptor: AuthInterceptor
+    ): OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(errorInterceptor)
         .addInterceptor(authInterceptor)
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
@@ -33,11 +39,20 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun retrofit(client: OkHttpClient, json: Json): Retrofit = Retrofit.Builder()
+    fun retrofit(
+        client: OkHttpClient,
+        json: Json,
+        apiResultCallAdapterFactory: ApiResultCallAdapterFactory
+    ): Retrofit = Retrofit.Builder()
         .baseUrl(BuildConfig.TMDB_BASE_URL)
         .client(client)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+        .addCallAdapterFactory(apiResultCallAdapterFactory)
         .build()
+
+    @Provides
+    @Singleton
+    fun apiResultCallAdapterFactory(): ApiResultCallAdapterFactory = ApiResultCallAdapterFactory()
 
     @Provides
     @Singleton
