@@ -27,6 +27,18 @@ Android movie browsing app built with Jetpack Compose, Clean Architecture, and T
 ./gradlew testDebugUnitTest
 ```
 
+## Download APK from CI
+
+The CI workflow automatically builds a debug APK on every push and pull request. To download it:
+
+1. Go to the **Actions** tab in your GitHub repository
+2. Click on the latest workflow run (e.g., "CI")
+3. Scroll down to the **Artifacts** section
+4. Click on **debug-apk** to download the APK file
+5. The APK will be available for 7 days after the workflow run
+
+**Note**: The APK is located at `app/build/outputs/apk/debug/app-debug.apk` in the artifact.
+
 ## Architecture
 
 - **Clean Architecture**: Data → Domain → UI layers
