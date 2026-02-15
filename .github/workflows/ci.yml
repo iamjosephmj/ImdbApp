@@ -24,19 +24,28 @@ jobs:
       run: chmod +x gradlew
       
     - name: Validate and setup API key
+      env:
+        API_KEY_SECRET: ${{ secrets.TMDB_API_KEY }}
+        API_KEY_VAR: ${{ vars.TMDB_API_KEY }}
       run: |
-        API_KEY="${{ secrets.TMDB_API_KEY }}"
-        
-        # Check if API key is missing or empty
-        if [ -z "$API_KEY" ] || [ "$API_KEY" = "" ]; then
-          echo "::error::TMDB_API_KEY secret is not set or is empty. Build cannot continue without a valid API key."
-          echo "::error::Please add TMDB_API_KEY as a repository secret in Settings > Secrets and variables > Actions"
+        # Prefer secret over var, but allow var as fallback
+        if [ -n "$API_KEY_SECRET" ] && [ "$API_KEY_SECRET" != "" ]; then
+          API_KEY="$API_KEY_SECRET"
+          KEY_SOURCE="secret"
+        elif [ -n "$API_KEY_VAR" ] && [ "$API_KEY_VAR" != "" ]; then
+          API_KEY="$API_KEY_VAR"
+          KEY_SOURCE="variable"
+        else
+          echo "::error::TMDB_API_KEY is not set or is empty. Build cannot continue without a valid API key."
+          echo "::error::Please add TMDB_API_KEY as either:"
+          echo "::error::  - Repository secret: Settings > Secrets and variables > Actions > New repository secret"
+          echo "::error::  - Repository variable: Settings > Secrets and variables > Actions > Variables tab > New repository variable"
           exit 1
         fi
         
         # Check minimum length (TMDB API keys are typically 32+ characters)
         if [ ${#API_KEY} -lt 10 ]; then
-          echo "::error::TMDB_API_KEY appears to be invalid (too short). Build cannot continue."
+          echo "::error::TMDB_API_KEY appears to be invalid (too short: ${#API_KEY} characters). Build cannot continue."
           exit 1
         fi
         
@@ -44,12 +53,23 @@ jobs:
         echo "TMDB_API_KEY=$API_KEY" > local.properties
         
         # Verify the file was created and contains the key
-        if [ ! -f local.properties ] || ! grep -q "TMDB_API_KEY" local.properties; then
+        if [ ! -f local.properties ]; then
+          echo "::error::Failed to create local.properties file. Build cannot continue."
+          exit 1
+        fi
+        
+        if ! grep -q "TMDB_API_KEY" local.properties; then
           echo "::error::Failed to write API key to local.properties. Build cannot continue."
           exit 1
         fi
         
-        echo "✓ API key validated and configured successfully"
+        # Verify the key was written correctly (basic sanity check)
+        if ! grep -q "TMDB_API_KEY=.*" local.properties || [ -z "$(grep 'TMDB_API_KEY=' local.properties | cut -d'=' -f2)" ]; then
+          echo "::error::API key validation failed. The key was not written correctly to local.properties."
+          exit 1
+        fi
+        
+        echo "✓ API key validated and configured successfully (source: $KEY_SOURCE, length: ${#API_KEY} chars)"
       
     - name: Run unit tests
       run: ./gradlew testDebugUnitTest
