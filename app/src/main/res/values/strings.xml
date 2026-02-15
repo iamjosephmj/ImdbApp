@@ -42,6 +42,27 @@
     <!-- Error Messages -->
     <string name="something_went_wrong">Something went wrong</string>
     
+    <!-- Network Errors -->
+    <string name="error_no_connection">No internet connection. Please check your network settings.</string>
+    <string name="error_timeout">Request timed out. Please try again.</string>
+    <string name="error_network_generic">Network error. Please check your connection and try again.</string>
+    
+    <!-- HTTP Client Errors -->
+    <string name="error_unauthorized">Authentication failed. Please check your API key.</string>
+    <string name="error_forbidden">Access denied. You don\'t have permission to access this resource.</string>
+    <string name="error_not_found">Resource not found.</string>
+    <string name="error_too_many_requests">Too many requests. Please wait a moment and try again.</string>
+    <string name="error_client_generic">Request error: %1$s</string>
+    
+    <!-- HTTP Server Errors -->
+    <string name="error_server_internal">Server error. Please try again later.</string>
+    <string name="error_server_unavailable">Service temporarily unavailable. Please try again later.</string>
+    <string name="error_server_generic">Server error. Please try again later.</string>
+    
+    <!-- Other Errors -->
+    <string name="error_serialization">Failed to parse response. Please try again.</string>
+    <string name="error_unknown">An unexpected error occurred. Please try again.</string>
+    
     <!-- Loading -->
     <string name="loading_more">Loading more…</string>
 </resources>

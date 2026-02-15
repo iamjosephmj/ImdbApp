@@ -8,7 +8,7 @@ import com.ssemaj.imdbapp.data.paging.MoviePagingSourceFactory
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetNowPlayingMoviesUseCase @Inject constructor(
+internal class GetNowPlayingMoviesUseCase @Inject constructor(
     private val pagingSourceFactory: MoviePagingSourceFactory
 ) {
     operator fun invoke(): Flow<PagingData<Movie>> = Pager(

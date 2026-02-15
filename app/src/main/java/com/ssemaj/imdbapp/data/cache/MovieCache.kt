@@ -6,7 +6,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MovieCache @Inject constructor() {
+internal class MovieCache @Inject constructor() {
 
     private val detailsCache = LruCache<Int, MovieDetails>(50)
 

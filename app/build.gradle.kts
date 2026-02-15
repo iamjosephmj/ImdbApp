@@ -41,6 +41,26 @@ android {
             "TMDB_BASE_URL",
             "\"https://api.themoviedb.org/3/\""
         )
+        
+        // TMDB Image Base URL
+        buildConfigField(
+            "String",
+            "TMDB_IMAGE_BASE_URL",
+            "\"https://image.tmdb.org/t/p/\""
+        )
+        
+        // TMDB Image Sizes
+        buildConfigField(
+            "String",
+            "TMDB_POSTER_SIZE",
+            "\"w500\""
+        )
+        
+        buildConfigField(
+            "String",
+            "TMDB_BACKDROP_SIZE",
+            "\"w780\""
+        )
     }
 
     buildTypes {
